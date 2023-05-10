@@ -3,30 +3,18 @@ ESModules => import/export
 Para diferenciar módulos node de terceiros colocar node como prefixo */
 
 import http from 'node:http'
+import { json } from './middlewares/json.js'
 
 const users = []
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req
 
-  const buffers = []
-
-  for await (const chunk of req) {
-    buffers.push(chunk)
-  }
-
-  try {
-    // criando uma nova propriedade dentro de req com o nome body
-    req.body = JSON.parse(Buffer.concat(buffers).toString())
-  } catch (error) {
-    req.body = null
-  }
+  await json(req, res)
 
   // GET /users
   if (method === 'GET' && url === '/users') {
-    return res
-      .setHeader('Content-type', 'application/json')
-      .end(JSON.stringify(users))
+    return res.end(JSON.stringify(users))
   }
 
   // POST /users
