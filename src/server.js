@@ -3,36 +3,20 @@ ESModules => import/export
 Para diferenciar módulos node de terceiros colocar node como prefixo */
 
 import http from 'node:http'
-import { randomUUID } from 'node:crypto'
-import { Database } from './database.js'
+import { routes } from './routes.js'
 import { json } from './middlewares/json.js'
-
-const database = new Database()
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req
 
   await json(req, res)
 
-  // GET /users
-  if (method === 'GET' && url === '/users') {
-    const users = database.select('users')
-    return res.end(JSON.stringify(users))
-  }
+  const route = routes.find(route => {
+    return route.method === method && route.path === url
+  })
 
-  // POST /users
-  if (method === 'POST' && url === '/users') {
-    const { name, email } = req.body
-
-    const user = {
-      id: randomUUID(),
-      name: name, // quando a key e o valor são iguais pode passar só uma vez
-      email: email
-    }
-
-    database.insert('users', user)
-
-    return res.end('Criação de usuários')
+  if (route) {
+    return route.handler(req, res)
   }
 
   // GET /
