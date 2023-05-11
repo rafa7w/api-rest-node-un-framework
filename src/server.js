@@ -3,7 +3,8 @@ ESModules => import/export
 Para diferenciar módulos node de terceiros colocar node como prefixo */
 
 import http from 'node:http'
-import { Database } from './middlewares/database.js'
+import { randomUUID } from 'node:crypto'
+import { Database } from './database.js'
 import { json } from './middlewares/json.js'
 
 const database = new Database()
@@ -24,7 +25,7 @@ const server = http.createServer(async (req, res) => {
     const { name, email } = req.body
 
     const user = {
-      id: 1,
+      id: randomUUID(),
       name: name, // quando a key e o valor são iguais pode passar só uma vez
       email: email
     }
