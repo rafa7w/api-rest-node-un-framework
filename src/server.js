@@ -5,6 +5,7 @@ Para diferenciar módulos node de terceiros colocar node como prefixo */
 import http from 'node:http'
 import { routes } from './routes.js'
 import { json } from './middlewares/json.js'
+import { extractQueryParams } from './utils/extract-query-params.js'
 
 /*
 Exitem três formas do frontend ou qualquer aplicação que esteja consumindo
@@ -28,7 +29,12 @@ const server = http.createServer(async (req, res) => {
 
   if (route) {
     const routeParams = req.url.match(route.path)
-    req.params = { ...routeParams.groups }
+
+    const { query, params } = routeParams.groups
+
+    req.params = params
+
+    req.query = query ? extractQueryParams(query) : {}
 
     return route.handler(req, res)
   }
